@@ -8,17 +8,65 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController ,UITextFieldDelegate{
 
+    @IBOutlet weak var searchTextField: UITextField!
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     
+    
+     
+    var wetherMangerAPI=WetherAPI()
+    var currentWether:WetherAPI.WetherResponse?
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        searchTextField.delegate = self
+            
+        
     }
-
-
+    
+    @IBAction func searchButton(_ sender: UIButton) {
+    
+            searchTextField.endEditing(true)
+     
+        
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        searchTextField.endEditing(true)
+        return true
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        if textField.text != ""{
+            textField.placeholder = "Search"
+            return true
+        }else{
+            textField.placeholder = "type something"
+            return false
+        }
+    }
+    
+    private func textFieldDidEndEditing(_ textField: UITextField)async {
+        Task{
+            do{
+                currentWether = try await wetherMangerAPI.getWeherByCityName(name: searchTextField.text)
+                print("didEndEditing \(searchTextField.text!)")
+                searchTextField.text=""
+                
+            }catch{
+                fatalError("Error with fetching")
+            }
+        }
+         
+       
+    }
+    
+    
+    
 }
 
